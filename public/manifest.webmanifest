@@ -1,0 +1,13 @@
+{
+  "name": "Buzzent CRM",
+  "short_name": "Buzzent",
+  "description": "CRM de prospección comercial de Buzzent",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8f7",
+  "theme_color": "#0c332d",
+  "lang": "es-AR",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
