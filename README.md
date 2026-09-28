@@ -70,6 +70,16 @@ El panel incluye:
 
 Para aplicar la ampliación, ejecutar la migración después de `supabase/schema.sql` en Supabase SQL Editor. La integración oficial de WhatsApp y cualquier modo REAL deben configurarse después de probar el flujo DEMO; esta versión no envía mensajes reales.
 
+## Pruebas
+
+Ejecutar las pruebas de las reglas del agente con:
+
+```bash
+npm test
+```
+
+Las pruebas verifican rechazo, handoff, consultas de precio, pausa del agente, `DO_NOT_CONTACT` y el comportamiento seguro del modo DEMO.
+
 ## Estructura
 
 ```text
