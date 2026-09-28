@@ -4,6 +4,7 @@ import { Activity, ArrowLeft, BarChart3, Bell, CalendarDays, ChevronDown, Circle
 import './styles.css';
 import { cloudConfigured, deleteProspect as deleteCloudProspect, fetchProspects, getSession, saveAgentAction, saveProspect as saveCloudProspect, signIn, signUp } from './lib/cloud';
 import { registerPwa } from './pwa';
+import { decideNextAction } from './lib/agent';
 
 const statuses = ['Pendiente','Contactado','Respondió','Interesado','Reunión','Propuesta enviada','Negociación','Cliente','No interesado','No responde','Descartado'];
 const agentStatuses = ['NEW','RESEARCHING','QUALIFIED','READY_TO_CONTACT','CONTACTED','REPLIED','CONVERSATION','INTERESTED','PROPOSAL','NEGOTIATION','WON','LOST','NOT_INTERESTED','DO_NOT_CONTACT','HUMAN_HANDOFF'];
@@ -46,7 +47,7 @@ function App(){
       {page==='detail'&&selected&&<Detail p={prospects.find(x=>x.id===selected.id)||selected} onBack={()=>nav('prospects')} onEdit={()=>setModal({type:'form',data:selected})} onRemove={()=>remove(selected.id)} onSave={(p)=>{save(p);setSelected(p)}} />}
       {page==='followups'&&<Followups prospects={prospects} onOpen={(p)=>{setSelected(p);setPage('detail')}}/>}
       {page==='pipeline'&&<Pipeline prospects={prospects} onOpen={(p)=>{setSelected(p);setPage('detail')}} onStatus={(p,s)=>save({...p,status:s})}/>} 
-      {page==='reports'&&<Reports prospects={prospects} stats={stats}/>} {page==='conversations'&&<Conversations prospects={prospects} demoMode={demoMode} agentPaused={agentPaused} onTogglePause={()=>{setAgentPaused(x=>!x);logAction(agentPaused?'RESUME_AGENT':'PAUSE_AGENT')}} onHandoff={(p)=>{save({...p,status:'HUMAN_HANDOFF'});logAction('HANDOFF',{prospectId:p.id})}} onSimulate={(p)=>{if(!demoMode||agentPaused)return;logAction('SEND_MESSAGE',{prospectId:p.id,simulated:true});setToast('Mensaje simulado: no se envió nada real')}}/>} {page==='activity'&&<AgentActivity activity={activity}/>} {page==='settings'&&<SettingsPage demoMode={demoMode} setDemoMode={setDemoMode} agentPaused={agentPaused} setAgentPaused={setAgentPaused}/>} 
+      {page==='reports'&&<Reports prospects={prospects} stats={stats}/>} {page==='conversations'&&<Conversations prospects={prospects} demoMode={demoMode} agentPaused={agentPaused} onTogglePause={()=>{setAgentPaused(x=>!x);logAction(agentPaused?'RESUME_AGENT':'PAUSE_AGENT')}} onHandoff={(p)=>{save({...p,status:'HUMAN_HANDOFF'});logAction('HANDOFF',{prospectId:p.id})}} onSimulate={(p,text)=>{if(!demoMode||agentPaused)return;const decision=decideNextAction({text,prospect:p,demoMode});logAction(decision.type,{prospectId:p.id,message:decision.message,simulated:true});setToast(`DEMO · Acción: ${decision.type}`);return decision}}/>} {page==='activity'&&<AgentActivity activity={activity}/>} {page==='settings'&&<SettingsPage demoMode={demoMode} setDemoMode={setDemoMode} agentPaused={agentPaused} setAgentPaused={setAgentPaused}/>} 
     </main>
     {modal?.type==='form'&&<ProspectForm data={modal.data} onClose={()=>setModal(null)} onSave={save}/>} {modal?.type==='import'&&<ImportModal onClose={()=>setModal(null)} onImport={(rows)=>{setProspects(x=>[...rows.map((r,i)=>({...r,id:Date.now()+i,contacts:[]})),...x]);setModal(null);setToast('Prospectos importados')}}/>}
     {toast&&<div className="toast"><CircleCheck size={17}/>{toast}</div>}
