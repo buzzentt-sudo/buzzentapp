@@ -1,3 +1,5 @@
+import { findDuplicate } from './deduplication';
+
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -49,6 +51,11 @@ export async function saveProspect(prospect) {
   if (prospect.id) {
     await fetch(`${url}/rest/v1/prospects?id=eq.${prospect.id}`, { method: 'PATCH', headers: { ...headers(session.access_token), Prefer: 'return=minimal' }, body: JSON.stringify(payload) });
   } else {
+    const existingResponse = await fetch(`${url}/rest/v1/prospects?select=id,name,phone,whatsapp,email,instagram,facebook,city&limit=5000`, { headers: headers(session.access_token) });
+    if (existingResponse.ok) {
+      const duplicate = findDuplicate(prospect, await existingResponse.json());
+      if (duplicate) throw new Error(`El prospecto ya existe: ${duplicate.name}.`);
+    }
     await fetch(`${url}/rest/v1/prospects`, { method: 'POST', headers: { ...headers(session.access_token), Prefer: 'return=minimal' }, body: JSON.stringify(payload) });
   }
 }
