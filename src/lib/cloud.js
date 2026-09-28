@@ -103,3 +103,17 @@ export async function addConversationMessage(conversationId, message) {
   const rows = await cloudRequest('conversation_messages', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ ...message, owner_id: session.user.id, conversation_id: conversationId }) });
   return rows?.[0] || null;
 }
+
+export async function fetchCommercialSettings() {
+  const session = getSession();
+  if (!session?.user?.id) return null;
+  const rows = await cloudRequest('commercial_settings?select=*&limit=1');
+  return rows?.[0] || null;
+}
+
+export async function saveCommercialSettings(settings) {
+  const session = getSession();
+  if (!session?.user?.id) return null;
+  const rows = await cloudRequest('commercial_settings?on_conflict=owner_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ ...settings, owner_id: session.user.id }) });
+  return rows?.[0] || null;
+}
