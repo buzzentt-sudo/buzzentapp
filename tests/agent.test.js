@@ -12,6 +12,7 @@ test('consulta de precio produce QUALIFY sin inventar precio', () => {
   assert.doesNotMatch(result.message, /30\.000|16\.000/);
 });
 test('modo DEMO permite simular sin envío real', () => assert.equal(canExecuteAction({ type: 'SEND_MESSAGE' }, { demoMode: true, agentPaused: false, status: 'CONTACTED' }).allowed, true));
+test('modo REAL bloquea envíos hasta conectar un canal oficial', () => assert.deepEqual(canExecuteAction({ type: 'SEND_MESSAGE' }, { demoMode: false, agentPaused: false, status: 'CONTACTED' }), { allowed: false, reason: 'NO_OFFICIAL_CHANNEL' }));
 test('agente pausado bloquea acciones', () => assert.deepEqual(canExecuteAction({ type: 'SEND_MESSAGE' }, { demoMode: true, agentPaused: true, status: 'CONTACTED' }), { allowed: false, reason: 'AGENT_PAUSED' }));
 test('DO_NOT_CONTACT bloquea acciones posteriores', () => assert.deepEqual(canExecuteAction({ type: 'FOLLOW_UP' }, { demoMode: true, agentPaused: false, status: 'DO_NOT_CONTACT' }), { allowed: false, reason: 'CONTACT_BLOCKED' }));
 test('detecta duplicados por teléfono', () => assert.equal(findDuplicate({ name: 'Otro nombre', phone: '011 5555-1234' }, [{ name: 'Negocio', phone: '011-5555-1234', city: 'CABA' }]).name, 'Negocio'));
