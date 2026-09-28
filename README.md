@@ -56,6 +56,20 @@ Con esas variables presentes, Buzzent CRM muestra login, sincroniza prospectos c
 
 Sin variables de Supabase, la app mantiene un modo local con `localStorage` para desarrollo. Con variables configuradas y una sesión iniciada, utiliza Supabase Auth + Postgres mediante la capa `src/lib/cloud.js`. Las credenciales nunca deben commitearse: usar `.env.local` y las variables de entorno del hosting.
 
+## Centro de operaciones del agente
+
+La primera fase del centro de operaciones conserva la plataforma existente y agrega una migración no destructiva en `supabase/migrations/20260928_agent_operations.sql`. Esta migración crea conversaciones, mensajes, configuración comercial, acciones, notificaciones y campos ampliados para prospectos, todos protegidos por Row Level Security.
+
+El panel incluye:
+
+- Bandeja de conversaciones con historial de contactos.
+- Modo DEMO visible: simula acciones y bloquea envíos reales.
+- Pausar/reactivar agente y tomar conversación manualmente.
+- Registro de actividad del agente.
+- Configuración inicial de precios, servicios, horarios y límites.
+
+Para aplicar la ampliación, ejecutar la migración después de `supabase/schema.sql` en Supabase SQL Editor. La integración oficial de WhatsApp y cualquier modo REAL deben configurarse después de probar el flujo DEMO; esta versión no envía mensajes reales.
+
 ## Estructura
 
 ```text

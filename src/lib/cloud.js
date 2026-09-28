@@ -58,3 +58,27 @@ export async function deleteProspect(id) {
   if (!cloudConfigured || !session?.access_token) return;
   await fetch(`${url}/rest/v1/prospects?id=eq.${id}`, { method: 'DELETE', headers: headers(session.access_token) });
 }
+
+async function cloudRequest(path, options = {}) {
+  const session = getSession();
+  if (!cloudConfigured || !session?.access_token) return null;
+  const response = await fetch(`${url}/rest/v1/${path}`, { ...options, headers: { ...headers(session.access_token), ...(options.headers || {}) } });
+  if (!response.ok) throw new Error('No se pudo sincronizar la operación con la nube.');
+  return response.status === 204 ? null : response.json();
+}
+
+export async function saveAgentAction(action) {
+  const session = getSession();
+  if (!session?.user?.id) return;
+  return cloudRequest('agent_actions', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ ...action, owner_id: session.user.id }) });
+}
+
+export async function fetchConversations() {
+  const rows = await cloudRequest('conversations?select=*,prospects(name,industry,city)&order=updated_at.desc');
+  return rows || [];
+}
+
+export async function fetchConversationMessages(conversationId) {
+  const rows = await cloudRequest(`conversation_messages?conversation_id=eq.${conversationId}&select=*&order=created_at.asc`);
+  return rows || [];
+}
