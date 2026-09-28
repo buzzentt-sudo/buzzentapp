@@ -129,3 +129,15 @@ export async function saveResearchSource(source) {
   const rows = await cloudRequest('research_sources', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ ...source, owner_id: session.user.id }) });
   return rows?.[0] || null;
 }
+
+export async function saveAgentNotification(notification) {
+  const session = getSession();
+  if (!session?.user?.id) return null;
+  const rows = await cloudRequest('agent_notifications', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ ...notification, owner_id: session.user.id }) });
+  return rows?.[0] || null;
+}
+
+export async function fetchAgentNotifications() {
+  const rows = await cloudRequest('agent_notifications?select=*&order=created_at.desc&limit=50');
+  return rows || [];
+}
