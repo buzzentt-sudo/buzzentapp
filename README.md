@@ -80,6 +80,10 @@ npm test
 
 Las pruebas verifican rechazo, handoff, consultas de precio, pausa del agente, `DO_NOT_CONTACT` y el comportamiento seguro del modo DEMO.
 
+## Canal de email
+
+La función `supabase/functions/send-email` deja preparado el envío por correo mediante Resend. En DEMO solo devuelve una simulación. Para habilitar REAL se deben configurar como secretos de Supabase `RESEND_API_KEY`, `EMAIL_FROM` y `EMAIL_REAL_ENABLED=true`, y verificar el dominio remitente en el proveedor. Las claves no deben estar en variables `VITE_*` ni en el navegador.
+
 ## Estructura
 
 ```text

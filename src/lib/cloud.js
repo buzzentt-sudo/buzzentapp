@@ -141,3 +141,12 @@ export async function fetchAgentNotifications() {
   const rows = await cloudRequest('agent_notifications?select=*&order=created_at.desc&limit=50');
   return rows || [];
 }
+
+export async function sendEmail({ to, subject, html, mode = 'DEMO' }) {
+  const session = getSession();
+  if (!cloudConfigured || !session?.access_token) return { ok: true, simulated: true };
+  const response = await fetch(`${url}/functions/v1/send-email`, { method: 'POST', headers: { ...headers(session.access_token) }, body: JSON.stringify({ to, subject, html, mode }) });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.code || 'No se pudo procesar el correo.');
+  return data;
+}
