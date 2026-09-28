@@ -117,3 +117,15 @@ export async function saveCommercialSettings(settings) {
   const rows = await cloudRequest('commercial_settings?on_conflict=owner_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ ...settings, owner_id: session.user.id }) });
   return rows?.[0] || null;
 }
+
+export async function fetchResearchSources(prospectId) {
+  const rows = await cloudRequest(`research_sources?prospect_id=eq.${prospectId}&select=*&order=researched_at.desc`);
+  return rows || [];
+}
+
+export async function saveResearchSource(source) {
+  const session = getSession();
+  if (!session?.user?.id) return null;
+  const rows = await cloudRequest('research_sources', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ ...source, owner_id: session.user.id }) });
+  return rows?.[0] || null;
+}
