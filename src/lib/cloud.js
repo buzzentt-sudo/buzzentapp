@@ -89,3 +89,17 @@ export async function fetchConversationMessages(conversationId) {
   const rows = await cloudRequest(`conversation_messages?conversation_id=eq.${conversationId}&select=*&order=created_at.asc`);
   return rows || [];
 }
+
+export async function upsertConversation(prospectId, channel = 'DEMO') {
+  const session = getSession();
+  if (!session?.user?.id) return null;
+  const rows = await cloudRequest('conversations?on_conflict=owner_id,prospect_id,channel', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ owner_id: session.user.id, prospect_id: prospectId, channel, status: 'ACTIVE', agent_enabled: true }) });
+  return rows?.[0] || null;
+}
+
+export async function addConversationMessage(conversationId, message) {
+  const session = getSession();
+  if (!session?.user?.id || !conversationId) return null;
+  const rows = await cloudRequest('conversation_messages', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ ...message, owner_id: session.user.id, conversation_id: conversationId }) });
+  return rows?.[0] || null;
+}
