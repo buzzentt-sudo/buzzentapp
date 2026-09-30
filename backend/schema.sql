@@ -1,0 +1,18 @@
+create table if not exists businesses (id uuid primary key default gen_random_uuid(), name text not null, category text, description text, phone text, address text, created_at timestamptz default now());
+create table if not exists business_members (business_id uuid references businesses(id) on delete cascade, user_id uuid not null, role text not null check (role in ('ADMINISTRADOR','EMPLEADO')), primary key (business_id,user_id));
+create table if not exists services (id uuid primary key default gen_random_uuid(), business_id uuid references businesses(id) on delete cascade not null, name text not null, description text, price numeric, duration_minutes integer not null default 30, active boolean default true);
+create table if not exists customers (id uuid primary key default gen_random_uuid(), business_id uuid references businesses(id) on delete cascade not null, name text not null, phone text, channel text, last_interaction timestamptz, created_at timestamptz default now());
+create table if not exists appointments (id uuid primary key default gen_random_uuid(), business_id uuid references businesses(id) on delete cascade not null, customer_id uuid references customers(id), service_id uuid references services(id), starts_at timestamptz not null, ends_at timestamptz not null, status text not null default 'PENDIENTE', notes text, created_at timestamptz default now(), check (ends_at > starts_at));
+create table if not exists conversations (id uuid primary key default gen_random_uuid(), business_id uuid references businesses(id) on delete cascade not null, customer_id uuid references customers(id), channel text not null, status text not null default 'AGENT_ACTIVE', last_message_at timestamptz default now());
+create table if not exists messages (id uuid primary key default gen_random_uuid(), conversation_id uuid references conversations(id) on delete cascade not null, role text not null check (role in ('CLIENTE','AGENTE','HUMANO','SISTEMA')), content text not null, created_at timestamptz default now());
+create table if not exists faqs (id uuid primary key default gen_random_uuid(), business_id uuid references businesses(id) on delete cascade not null, question text not null, answer text not null, active boolean default true);
+create table if not exists agent_settings (business_id uuid primary key references businesses(id) on delete cascade, active boolean default false, model text, updated_at timestamptz default now());
+alter table businesses enable row level security;
+alter table business_members enable row level security;
+alter table services enable row level security;
+alter table customers enable row level security;
+alter table appointments enable row level security;
+alter table conversations enable row level security;
+alter table messages enable row level security;
+alter table faqs enable row level security;
+alter table agent_settings enable row level security;
