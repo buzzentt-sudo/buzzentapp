@@ -7,6 +7,7 @@ create table if not exists conversations (id uuid primary key default gen_random
 create table if not exists messages (id uuid primary key default gen_random_uuid(), conversation_id uuid references conversations(id) on delete cascade not null, role text not null check (role in ('CLIENTE','AGENTE','HUMANO','SISTEMA')), content text not null, created_at timestamptz default now());
 create table if not exists faqs (id uuid primary key default gen_random_uuid(), business_id uuid references businesses(id) on delete cascade not null, question text not null, answer text not null, active boolean default true);
 create table if not exists agent_settings (business_id uuid primary key references businesses(id) on delete cascade, active boolean default false, model text, updated_at timestamptz default now());
+create table if not exists integration_connections (id uuid primary key default gen_random_uuid(), business_id uuid references businesses(id) on delete cascade not null, channel text not null check (channel in ('WHATSAPP','INSTAGRAM')), external_id text not null, access_token text not null, display_name text, active boolean default true, created_at timestamptz default now(), updated_at timestamptz default now(), unique (business_id, channel), unique (channel, external_id));
 alter table businesses enable row level security;
 alter table business_members enable row level security;
 alter table services enable row level security;
@@ -16,3 +17,4 @@ alter table conversations enable row level security;
 alter table messages enable row level security;
 alter table faqs enable row level security;
 alter table agent_settings enable row level security;
+alter table integration_connections enable row level security;
